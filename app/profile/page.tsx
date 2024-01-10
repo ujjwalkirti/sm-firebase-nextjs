@@ -6,15 +6,44 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PostsList from "@/components/PostsList";
 import FollowersList from "@/components/FollowersList";
 import FollowingList from "@/components/FollowingList";
+import { users } from "@/constants/users";
+import { posts } from "@/constants/posts";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "@/lib/Firebase";
+import { useRouter } from "next/navigation";
+import { getFollowers } from "@/lib/user";
+import { doc, getDoc } from "firebase/firestore";
 
 function stylesBasedOnChoice(intent: string, choice: string) {
   if (choice === intent) {
-    return "text-pink-600 font-semibold";
+    return "text-pink-600 font-semibold border-b-4 border-b-pink-600";
   } else return "text-gray-700";
 }
 
 const ProfilePage = () => {
   const [choice, setChoice] = React.useState("following");
+  const [user, setUser] = React.useState<User | null>(null);
+  const [followers, setFollowers] = React.useState<User[]>([]);
+  const { push } = useRouter();
+
+  React.useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        setUser(docSnap.data() as User);
+        const followerList = await getFollowers(user.uid);
+        setFollowers(followerList);
+        // ...
+      } else {
+        // User is signed out
+        // ...
+        push("/login");
+      }
+    });
+  }, [push]);
   return (
     <div className="">
       {/* header */}
@@ -24,22 +53,29 @@ const ProfilePage = () => {
         </Link>
         <h1 className="w-full text-center text-2xl">You</h1>
       </div>
-      <div className="px-4 border-b border-b-gray-400">
+
+      <div className="px-4 border-b border-b-gray-400 ">
         {" "}
-        <Avatar className="w-[100px] h-[100px]">
-          <AvatarImage src="/assets/avatar.png" alt="User's avatar" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        <div>
-          <p>William Franklin</p>
-          <p>Joined on 25 Dec 2019</p>
+        {/* account owner's information */}
+        <div className="flex items-center gap-5">
+          <Avatar className="w-[80px] h-[80px]">
+            <AvatarImage src={user?.profile_pic_url} alt="User's avatar" />
+            <AvatarFallback>{user?.email}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold">{user?.username}</p>
+            <p className="text-sm text-gray-400">
+              Joined on {new Date(user?.timestamp || "").toDateString()}
+            </p>
+          </div>
         </div>
-        <div className="flex justify-between w-4/5 mx-auto">
+        <div className="flex justify-between w-4/5 mx-auto text-sm mt-5">
           <div
             className={`${stylesBasedOnChoice(
               "posts",
               choice
             )} flex flex-col items-center`}
+            onClick={() => setChoice("posts")}
           >
             <p>8</p>
             <p>Posts</p>
@@ -49,6 +85,7 @@ const ProfilePage = () => {
               "followers",
               choice
             )} flex flex-col items-center`}
+            onClick={() => setChoice("followers")}
           >
             <p>16</p>
             <p>Followers</p>
@@ -58,6 +95,7 @@ const ProfilePage = () => {
               "following",
               choice
             )} flex flex-col items-center`}
+            onClick={() => setChoice("following")}
           >
             <p>34</p>
             <p>Following</p>
@@ -67,11 +105,11 @@ const ProfilePage = () => {
 
       <div>
         {choice === "following" ? (
-          <FollowingList />
-        ) : choice === "follwers" ? (
-          <FollowersList />
+          <FollowingList list={users} />
+        ) : choice === "followers" ? (
+          <FollowersList list={users} />
         ) : (
-          <PostsList />
+          <PostsList list={posts} />
         )}
       </div>
     </div>
