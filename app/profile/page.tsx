@@ -1,17 +1,19 @@
 "use client";
-import { MoveLeftIcon } from "lucide-react";
+import { LoaderIcon, MoveLeftIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PostsList from "@/components/PostsList";
 import FollowersList from "@/components/FollowersList";
 import FollowingList from "@/components/FollowingList";
-import { users } from "@/constants/users";
-import { posts } from "@/constants/posts";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/Firebase";
 import { useRouter } from "next/navigation";
-import { getFollowers } from "@/lib/user";
+import {
+  getAllPostsMadeByCurrentUser,
+  getFollowers,
+  getFollowing,
+} from "@/lib/user";
 import { doc, getDoc } from "firebase/firestore";
 
 function stylesBasedOnChoice(intent: string, choice: string) {
@@ -24,6 +26,9 @@ const ProfilePage = () => {
   const [choice, setChoice] = React.useState("following");
   const [user, setUser] = React.useState<User | null>(null);
   const [followers, setFollowers] = React.useState<User[]>([]);
+  const [following, setFollowing] = React.useState<User[]>([]);
+  const [posts, setPosts] = React.useState<Post[]>([]);
+  const [loading, setLoading] = React.useState(true);
   const { push } = useRouter();
 
   React.useEffect(() => {
@@ -35,7 +40,12 @@ const ProfilePage = () => {
         const docSnap = await getDoc(docRef);
         setUser(docSnap.data() as User);
         const followerList = await getFollowers(user.uid);
+        const followingList = await getFollowing(user.uid);
+        const postList = await getAllPostsMadeByCurrentUser(user.uid);
+        setFollowing(followingList);
         setFollowers(followerList);
+        setPosts(postList);
+        setLoading(false);
         // ...
       } else {
         // User is signed out
@@ -44,6 +54,14 @@ const ProfilePage = () => {
       }
     });
   }, [push]);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-2xl font-semibold">Loading...</p>
+        <LoaderIcon />
+      </div>
+    );
+  }
   return (
     <div className="">
       {/* header */}
@@ -77,7 +95,7 @@ const ProfilePage = () => {
             )} flex flex-col items-center`}
             onClick={() => setChoice("posts")}
           >
-            <p>8</p>
+            <p>{posts.length}</p>
             <p>Posts</p>
           </div>
           <div
@@ -87,7 +105,7 @@ const ProfilePage = () => {
             )} flex flex-col items-center`}
             onClick={() => setChoice("followers")}
           >
-            <p>16</p>
+            <p>{followers.length}</p>
             <p>Followers</p>
           </div>
           <div
@@ -97,7 +115,7 @@ const ProfilePage = () => {
             )} flex flex-col items-center`}
             onClick={() => setChoice("following")}
           >
-            <p>34</p>
+            <p>{following.length}</p>
             <p>Following</p>
           </div>
         </div>
@@ -105,9 +123,9 @@ const ProfilePage = () => {
 
       <div>
         {choice === "following" ? (
-          <FollowingList list={users} />
+          <FollowingList list={following} />
         ) : choice === "followers" ? (
-          <FollowersList list={users} />
+          <FollowersList list={followers} />
         ) : (
           <PostsList list={posts} />
         )}

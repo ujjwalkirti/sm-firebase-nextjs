@@ -7,9 +7,7 @@ import { SquarePen, XCircle } from "lucide-react";
 import React from "react";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,

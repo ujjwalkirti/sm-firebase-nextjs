@@ -13,9 +13,9 @@ import { db } from "./Firebase";
 async function getFollowing(userId: string) {
     const docRef = doc(db, "users", userId);
     const docSnap = await getDoc(docRef);
-    const followingList: User[] = [];
+    let followingList: User[] = [];
     if (docSnap.exists()) {
-        followingList.push(docSnap.data().following as User);
+        followingList = docSnap.data().following;
     } else {
         // docSnap.data() will be undefined in this case
         console.log("No such document!");
@@ -28,7 +28,7 @@ async function getFollowers(userId: string) {
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("following", "array-contains", userId));
     const querySnapshot = await getDocs(q);
-    const followersList: User[] = [];
+    let followersList: User[] = [];
     querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
         followersList.push(doc.data() as User);
@@ -36,4 +36,16 @@ async function getFollowers(userId: string) {
     return followersList;
 }
 
-export { getFollowing, getFollowers }
+async function getAllPostsMadeByCurrentUser(userId: string) {
+    const postsRef = collection(db, "posts");
+    const q = query(postsRef, where("author", "==", userId));
+    const querySnapshot = await getDocs(q);
+    let postsList: Post[] = [];
+    querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        postsList.push(doc.data() as Post);
+    });
+    return postsList;
+}
+
+export { getFollowing, getFollowers, getAllPostsMadeByCurrentUser }

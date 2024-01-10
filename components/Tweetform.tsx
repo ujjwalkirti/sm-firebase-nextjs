@@ -22,6 +22,7 @@ const Tweetform = () => {
             placeholder="Add Caption"
             type="text"
             required
+            name="caption"
             className="border-none"
           />
           <SmileIcon />
@@ -30,6 +31,7 @@ const Tweetform = () => {
           <Input
             placeholder="Add Location"
             type="text"
+            name="location"
             required
             className="border-none outline-none"
           />

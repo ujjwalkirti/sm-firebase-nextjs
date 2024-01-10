@@ -3,15 +3,18 @@ import React from "react";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/Firebase";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+  const { push } = useRouter();
   const optionsStyle = "flex  items-center gap-4 text-gray-600";
   return (
     <div className="flex items-center justify-between px-4 pt-8 text-gray-600">
@@ -44,7 +47,19 @@ const Navbar = () => {
             <Link href={"/users"} className={optionsStyle}>
               <BadgeInfo /> User List
             </Link>
-            <p className={optionsStyle}>
+            <p
+              className={optionsStyle}
+              onClick={() => {
+                signOut(auth)
+                  .then(() => {
+                    // Sign-out successful.
+                    push("/login");
+                  })
+                  .catch((error) => {
+                    // An error happened.
+                  });
+              }}
+            >
               <LogOut />
               Sign Out
             </p>
