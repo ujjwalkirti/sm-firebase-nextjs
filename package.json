@@ -18,7 +18,6 @@
     "javascript-time-ago": "^2.5.9",
     "lucide-react": "^0.309.0",
     "next": "14.0.4",
-    "next-auth": "^4.24.5",
     "react": "^18",
     "react-dom": "^18",
     "react-time-ago": "^7.2.1",

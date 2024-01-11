@@ -2,11 +2,37 @@ import React from "react";
 import { Input } from "./ui/input";
 import { MapPinIcon, Send, SmileIcon } from "lucide-react";
 import { Button } from "./ui/button";
+import { push, ref, serverTimestamp, set } from "firebase/database";
+import { auth, realtimeDB } from "@/lib/Firebase";
 
-const Tweetform = () => {
+type props = {
+  user: User;
+};
+
+const Tweetform = ({ user }: props) => {
+  const [content, setContent] = React.useState<string>("");
+  const [caption, setCaption] = React.useState<string>("");
+  const [location, setLocation] = React.useState<string>("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const tweetsRef = ref(realtimeDB, "tweets");
+    const newTweetRef = push(tweetsRef);
+    await set(newTweetRef, {
+      content,
+      caption,
+      location,
+      author: user,
+      timestamp: serverTimestamp(),
+      // Add other tweet data here
+    });
+
+    alert("Tweet has been posted");
+  };
   return (
     <div>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <textarea
           placeholder="Type here"
           name="content"

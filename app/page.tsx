@@ -2,8 +2,7 @@
 import Navbar from "@/components/Navbar";
 import PostsList from "@/components/PostsList";
 import SplashScreenPage from "@/components/SplashScreenPage";
-import { posts } from "@/constants/posts";
-import { SquarePen, XCircle } from "lucide-react";
+import { ShieldX, ShieldXIcon, SquarePen } from "lucide-react";
 import React from "react";
 import {
   Dialog,
@@ -13,18 +12,36 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Tweetform from "@/components/Tweetform";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/Firebase";
+import { getFollowedTweets } from "@/lib/tweets";
 
 const Home = () => {
   const [user, setUser] = React.useState<User | null>(null);
+  const [tweets, setTweets] = React.useState<Post[] | null>(null);
+  const [error, setError] = React.useState<boolean>(false);
   React.useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/auth.user
-        console.log(user);
-        setUser(user);
+        const localUser: User = {
+          username: user.displayName ? user.displayName : user.email || "",
+          email: user.email || "",
+          uid: user.uid,
+          profile_pic_url: user.photoURL || "/assets/avatar.png",
+          timestamp: user.metadata.creationTime
+            ? user.metadata.creationTime
+            : new Date().toDateString(),
+        };
+        setUser(localUser);
+        getFollowedTweets(user.uid)
+          .then((tweets) => {
+            setTweets(tweets);
+          })
+          .catch((error) => {
+            setError(true);
+          });
         // ...
       } else {
         // User is signed out
@@ -37,8 +54,20 @@ const Home = () => {
     <>
       {user ? (
         <div className="bg-gray-100">
-          <Navbar />
-          <PostsList list={posts} />
+          <Navbar user={user} title={"My Feed"} />
+          {tweets ? (
+            <PostsList list={tweets} user={user as User} />
+          ) : (
+            <div className="px-2 mt-10 min-h-screen">
+              <ShieldXIcon className="mx-auto text-pink-600 h-14 w-14 mb-5" />
+              <p className="text-center">
+                Sorry, there was some{" "}
+                <span className="text-pink-600 font-bold">error</span> fetching
+                the tweets,
+                <br /> Please refresh the page.
+              </p>
+            </div>
+          )}
 
           <Dialog>
             <DialogTrigger asChild>
@@ -50,7 +79,7 @@ const Home = () => {
               <DialogHeader className="flex items-center">
                 <DialogTitle>Create New Post</DialogTitle>
               </DialogHeader>
-              <Tweetform />
+              <Tweetform user={user} />
             </DialogContent>
           </Dialog>
         </div>

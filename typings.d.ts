@@ -1,16 +1,17 @@
 type User = {
     username: string;
     email: string;
-    id: number;
+    uid: string;
     profile_pic_url: string;
-    timestamp:string;
+    timestamp: string;
 
 }
 
 
 type Post = {
-    author: string;
+    author: User;
     content: string;
+    caption:string;
+    location: string;
     timestamp: string;
-    id: string
 }

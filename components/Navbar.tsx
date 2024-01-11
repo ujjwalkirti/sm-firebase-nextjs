@@ -13,7 +13,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/Firebase";
 import { useRouter } from "next/navigation";
 
-const Navbar = () => {
+type props = {
+  title: string;
+  user: User;
+};
+
+const Navbar = ({ title, user }: props) => {
   const { push } = useRouter();
   const optionsStyle = "flex  items-center gap-4 text-gray-600";
   return (
@@ -29,11 +34,11 @@ const Navbar = () => {
               <div className="flex items-center gap-5">
                 <Avatar className="w-[50px] h-[50px]">
                   <AvatarImage src="/assets/avatar.png" alt="User's avatar" />
-                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarFallback>{user.email}</AvatarFallback>
                 </Avatar>
                 <div className="text-sm">
-                  <p className="font-semibold">William Franklin</p>
-                  <p className="text-sm text-gray-400">abc@gmail.com</p>
+                  <p className="font-semibold">{user.username}</p>
+                  <p className="text-sm text-gray-400">{user.email}</p>
                 </div>
               </div>
             </SheetTitle>
@@ -66,7 +71,7 @@ const Navbar = () => {
           </div>
         </SheetContent>
       </Sheet>
-      <p className="font-semibold text-black">My Feed</p>
+      <p className="font-semibold text-black">{title}</p>
       <Search />
     </div>
   );

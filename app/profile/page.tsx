@@ -15,6 +15,7 @@ import {
   getFollowing,
 } from "@/lib/user";
 import { doc, getDoc } from "firebase/firestore";
+import { getUserTweets } from "@/lib/tweets";
 
 function stylesBasedOnChoice(intent: string, choice: string) {
   if (choice === intent) {
@@ -41,7 +42,7 @@ const ProfilePage = () => {
         setUser(docSnap.data() as User);
         const followerList = await getFollowers(user.uid);
         const followingList = await getFollowing(user.uid);
-        const postList = await getAllPostsMadeByCurrentUser(user.uid);
+        const postList = await getUserTweets(user.uid);
         setFollowing(followingList);
         setFollowers(followerList);
         setPosts(postList);
@@ -127,7 +128,7 @@ const ProfilePage = () => {
         ) : choice === "followers" ? (
           <FollowersList list={followers} />
         ) : (
-          <PostsList list={posts} />
+          <PostsList list={posts} user={user as User} />
         )}
       </div>
     </div>

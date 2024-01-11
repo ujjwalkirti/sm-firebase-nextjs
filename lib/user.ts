@@ -48,4 +48,14 @@ async function getAllPostsMadeByCurrentUser(userId: string) {
     return postsList;
 }
 
-export { getFollowing, getFollowers, getAllPostsMadeByCurrentUser }
+
+async function getAllUsers() {
+    const usersCollectionRef = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersCollectionRef);
+
+    const users = usersSnapshot.docs.map(doc => doc.data());
+
+    return users;
+}
+
+export { getFollowing, getFollowers, getAllPostsMadeByCurrentUser, getAllUsers }

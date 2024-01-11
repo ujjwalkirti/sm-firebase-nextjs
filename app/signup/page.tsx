@@ -26,6 +26,7 @@ const SignupPage = () => {
         await setDoc(doc(db, "users", user.uid), {
           username: user.displayName ? user.displayName : user.email,
           email: user.email,
+          uid: user.uid,
           profile_pic_url: user.photoURL ? user.photoURL : "/assets/avatar.png",
           timestamp: user.metadata.creationTime,
           following: [],

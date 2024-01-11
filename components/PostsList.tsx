@@ -16,12 +16,13 @@ import Tweetform from "./Tweetform";
 
 type props = {
   list: Post[];
+  user: User;
 };
 
 TimeAgo.addDefaultLocale(en);
-const PostsList = ({ list }: props) => {
+const PostsList = ({ list ,user}: props) => {
   return (
-    <div className=" my-6">
+    <div className=" my-6 min-h-screen">
       {list.length === 0 && (
         <div className="flex flex-col items-center gap-4 my-10 px-2 text-gray-500 text-sm pt-8">
           <CameraIcon className="" />
@@ -34,23 +35,23 @@ const PostsList = ({ list }: props) => {
               <DialogHeader className="flex items-center">
                 <DialogTitle>Create New Post</DialogTitle>
               </DialogHeader>
-              <Tweetform />
+              <Tweetform user={user}/>
             </DialogContent>
           </Dialog>
         </div>
       )}
       <div className="px-4 flex flex-col gap-4">
-        {list.map((post) => (
+        {list.map((post,index) => (
           <div
-            key={post.id}
+            key={index}
             className="border-b border-b-gray-200 px-4 py-5 flex  gap-3 text-sm shadow-lg rounded-md bg-white"
           >
             <Avatar className="w-[40px] h-[40px]">
               <AvatarImage src={"/assets/avatar.png"} alt="User's avatar" />
-              <AvatarFallback>{post.author}</AvatarFallback>
+              <AvatarFallback>{post.author.username}</AvatarFallback>
             </Avatar>
             <div className="">
-              <p className="font-semibold">{post.author}</p>
+              <p className="font-semibold">{post.author.username}</p>
               <ReactTimeAgo
                 date={new Date(post.timestamp)}
                 locale="en-US"

@@ -8,12 +8,12 @@ type props = {
 const FollowingList = ({ list }: props) => {
   return (
     <div className="pt-8 px-4">
-      {list.length === 0 && <p>You are not following anyone yet!</p>}
+      {list.length === 0 && <p className="text-center">You are not following anyone yet!</p>}
       <div className="flex flex-col gap-5 text-sm">
         {list.map((user, index) => {
           if (index < 5)
             return (
-              <div key={user.id} className="flex items-center justify-between">
+              <div key={user.uid} className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   {/* avatar */}
                   <Avatar className="w-[40px] h-[40px]">
