@@ -4,14 +4,14 @@ type User = {
     uid: string;
     profile_pic_url: string;
     timestamp: string;
-
+    following?: string[];
 }
 
 
 type Post = {
     author: User;
     content: string;
-    caption:string;
+    caption: string;
     location: string;
     timestamp: string;
 }

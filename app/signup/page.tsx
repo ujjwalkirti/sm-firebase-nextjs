@@ -12,6 +12,7 @@ import { doc, setDoc } from "firebase/firestore";
 const SignupPage = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [username, setUsername] = React.useState("");
 
   const [error, setError] = React.useState<string | null>(null);
 
@@ -24,7 +25,7 @@ const SignupPage = () => {
         // Signed in
         const user = userCredential.user;
         await setDoc(doc(db, "users", user.uid), {
-          username: user.displayName ? user.displayName : user.email,
+          username: username,
           email: user.email,
           uid: user.uid,
           profile_pic_url: user.photoURL ? user.photoURL : "/assets/avatar.png",
@@ -40,7 +41,7 @@ const SignupPage = () => {
       });
   };
   return (
-    <div className="min-h-screen flex flex-col items-center p-6">
+    <div className="min-h-screen flex flex-col items-center p-6  lg:w-3/5 mx-auto">
       {/* header */}
       <div className="flex w-full items-center justify-between mb-16">
         <Link href="/" className="text-pink-600">
@@ -49,12 +50,22 @@ const SignupPage = () => {
         <h1 className="w-full text-center text-2xl">Create Account</h1>
       </div>
 
-      <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
+      <form
+        className="w-full md:w-4/5 mx-auto lg:w-2/5 flex flex-col gap-5"
+        onSubmit={handleSubmit}
+      >
         <p className="mb-5 text-xs text-gray-700">
           Fill in the required details and click Proceed.
           <br /> Fields marked * are mandatory
         </p>
-
+        <Input
+          type="text"
+          required
+          placeholder="Username"
+          className="outline-none"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
         <Input
           type="email"
           required

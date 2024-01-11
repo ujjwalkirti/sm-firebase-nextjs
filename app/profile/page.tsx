@@ -40,8 +40,8 @@ const ProfilePage = () => {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
         setUser(docSnap.data() as User);
-        const followerList = await getFollowers(user.uid);
-        const followingList = await getFollowing(user.uid);
+        const followerList = await getFollowers(user.email || "");
+        const followingList = await getFollowing(user.email || "");
         const postList = await getUserTweets(user.email || "");
         console.log(postList);
         setFollowing(followingList);
@@ -65,7 +65,7 @@ const ProfilePage = () => {
     );
   }
   return (
-    <div className="">
+    <div className="w-full lg:w-4/5 lg:mx-auto">
       {/* header */}
       <div className="flex w-full items-center justify-between px-2 mt-5 mb-3">
         <Link href="/" className="text-pink-600">
@@ -94,7 +94,7 @@ const ProfilePage = () => {
             className={`${stylesBasedOnChoice(
               "posts",
               choice
-            )} flex flex-col items-center`}
+            )} flex flex-col items-center cursor-pointer`}
             onClick={() => setChoice("posts")}
           >
             <p>{posts.length}</p>
@@ -104,7 +104,7 @@ const ProfilePage = () => {
             className={`${stylesBasedOnChoice(
               "followers",
               choice
-            )} flex flex-col items-center`}
+            )} flex flex-col items-center cursor-pointer`}
             onClick={() => setChoice("followers")}
           >
             <p>{followers.length}</p>
@@ -114,7 +114,7 @@ const ProfilePage = () => {
             className={`${stylesBasedOnChoice(
               "following",
               choice
-            )} flex flex-col items-center`}
+            )} flex flex-col items-center cursor-pointer`}
             onClick={() => setChoice("following")}
           >
             <p>{following.length}</p>

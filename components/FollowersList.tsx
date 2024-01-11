@@ -1,8 +1,12 @@
 import React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "./ui/button";
+import UserCard from "./UserCard";
+
+type ExtendedUser = User & {
+  beingFollowedByCurrentAuthUser?: boolean;
+};
+
 type props = {
-  list: User[];
+  list: ExtendedUser[];
 };
 
 const FollowersList = ({ list }: props) => {
@@ -13,21 +17,7 @@ const FollowersList = ({ list }: props) => {
       )}
       <div className="flex flex-col gap-5 text-sm">
         {list.map((user, index) => {
-          return (
-            <div key={user.email} className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {/* avatar */}
-                <Avatar className="w-[40px] h-[40px]">
-                  <AvatarImage src={user.profile_pic_url} alt="User's avatar" />
-                  <AvatarFallback>{user.username}</AvatarFallback>
-                </Avatar>
-                {/* username  */}
-                <p>{user.username}</p>
-              </div>
-              {/* button to unfollow */}
-              <Button className="h-[30px] bg-pink-600">Following</Button>
-            </div>
-          );
+          return <UserCard user={user} key={index} />;
         })}
       </div>
     </div>

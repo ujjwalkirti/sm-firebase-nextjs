@@ -1,5 +1,5 @@
-import {  doc, getDoc } from 'firebase/firestore';
-import {  ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import { doc, getDoc } from 'firebase/firestore';
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 import { db, realtimeDB } from "./Firebase";
 
 async function getFollowedTweets(userId: string) {
@@ -16,6 +16,15 @@ async function getFollowedTweets(userId: string) {
             tweets = [...tweets, ...tweetsSnapshot.val()];
         });
     }
+
+    // Add the current user's tweets
+    const userTweetsQuery = query(ref(realtimeDB, 'tweets'), orderByChild('author/email'), equalTo(userId));
+    onValue(userTweetsQuery, (userTweetsSnapshot) => {
+        tweets = [...tweets, ...userTweetsSnapshot.val()];
+    });
+
+    // Sort the tweets by timestamp
+    tweets.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     return tweets;
 }

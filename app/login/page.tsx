@@ -30,7 +30,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between p-6">
+    <div className="min-h-screen flex flex-col items-center justify-between p-6 lg:w-3/5 mx-auto">
       {/* header */}
       <div className="flex w-full items-center justify-between">
         <Link href="/" className="text-pink-600">
@@ -39,7 +39,10 @@ const LoginPage = () => {
         <h1 className="w-full text-center text-2xl">Login</h1>
       </div>
 
-      <form className="w-full flex flex-col gap-5" onSubmit={handleSubmit}>
+      <form
+        className="w-full md:w-4/5 mx-auto lg:w-2/5 flex flex-col gap-5"
+        onSubmit={handleSubmit}
+      >
         <p className="mb-5">Type in your Email ID and Password!</p>
 
         <Input
@@ -62,7 +65,11 @@ const LoginPage = () => {
           Sign In
         </Button>
       </form>
-
+      <Link href={"/signup"}>
+        <Button className="hover:bg-pink-600 hover:text-white bg-inherit border border-pink-600 text-black">
+          Create Account{" "}
+        </Button>
+      </Link>
       <Link className="text-pink-600" href="#">
         Can&apos;t Sign In? Reset Password
       </Link>

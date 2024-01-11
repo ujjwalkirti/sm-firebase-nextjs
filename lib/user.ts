@@ -1,12 +1,15 @@
 import {
+    arrayRemove,
+    arrayUnion,
     collection,
     doc,
     getDoc,
     getDocs,
     query,
+    updateDoc,
     where,
 } from "firebase/firestore";
-import { db } from "./Firebase";
+import { auth, db } from "./Firebase";
 
 
 // Function to get the list of users that the current user is following
@@ -15,7 +18,14 @@ async function getFollowing(userId: string) {
     const docSnap = await getDoc(docRef);
     let followingList: User[] = [];
     if (docSnap.exists()) {
-        followingList = docSnap.data().following;
+        docSnap.data().following.forEach(async (email: string) => {
+            const q = query(collection(db, "users"), where("email", "==", email));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                followingList.push(doc.data() as User);
+            });
+        });
+
     } else {
         // docSnap.data() will be undefined in this case
         console.log("No such document!");
@@ -24,9 +34,9 @@ async function getFollowing(userId: string) {
 }
 
 // Function to get the list of users that are following the current user
-async function getFollowers(userId: string) {
+async function getFollowers(email: string) {
     const usersRef = collection(db, "users");
-    const q = query(usersRef, where("following", "array-contains", userId));
+    const q = query(usersRef, where("following", "array-contains", email));
     const querySnapshot = await getDocs(q);
     let followersList: User[] = [];
     querySnapshot.forEach((doc) => {
@@ -58,4 +68,22 @@ async function getAllUsers() {
     return users;
 }
 
-export { getFollowing, getFollowers, getAllPostsMadeByCurrentUser, getAllUsers }
+
+async function followCurrentUser(email: string) {
+    const currentUserRef = doc(db, "users", auth.currentUser?.uid || "");
+
+    await updateDoc(currentUserRef, {
+        following: arrayUnion(email)
+    });
+
+}
+
+async function unFollowCurrentUser(email: string) {
+    const currentUserRef = doc(db, "users", auth.currentUser?.uid || "");
+
+    await updateDoc(currentUserRef, {
+        following: arrayRemove(email)
+    });
+}
+
+export { getFollowing, getFollowers, getAllPostsMadeByCurrentUser, getAllUsers, followCurrentUser, unFollowCurrentUser }

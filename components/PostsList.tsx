@@ -22,7 +22,7 @@ type props = {
 TimeAgo.addDefaultLocale(en);
 const PostsList = ({ list ,user}: props) => {
   return (
-    <div className=" my-6 min-h-screen">
+    <div className=" my-6 min-h-screen w-full lg:w-3/5 lg:mx-auto">
       {list.length === 0 && (
         <div className="flex flex-col items-center gap-4 my-10 px-2 text-gray-500 text-sm pt-8">
           <CameraIcon className="" />
