@@ -1,5 +1,5 @@
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import {  doc, getDoc } from 'firebase/firestore';
+import {  ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 import { db, realtimeDB } from "./Firebase";
 
 async function getFollowedTweets(userId: string) {
@@ -7,11 +7,11 @@ async function getFollowedTweets(userId: string) {
     const userDocRef = doc(db, 'users', userId);
     const userDocSnapshot = await getDoc(userDocRef);
     const following = userDocSnapshot.data()?.following;
-
+    console.log(following);
     // Get the tweets of each followed user from Realtime Database
     let tweets: Post[] = [];
     for (let followedUserId of following) {
-        const tweetsQuery = query(ref(realtimeDB, 'tweets'), orderByChild('author/uid'), equalTo(followedUserId));
+        const tweetsQuery = query(ref(realtimeDB, 'tweets'), orderByChild('author/email'), equalTo(followedUserId));
         onValue(tweetsQuery, (tweetsSnapshot) => {
             tweets = [...tweets, ...tweetsSnapshot.val()];
         });
@@ -22,7 +22,7 @@ async function getFollowedTweets(userId: string) {
 
 async function getUserTweets(userId: string) {
     // Query the 'tweets' node for tweets where 'author/uid' is equal to the current user's ID
-    const tweetsQuery = query(ref(realtimeDB, 'tweets'), orderByChild('author/uid'), equalTo(userId));
+    const tweetsQuery = query(ref(realtimeDB, 'tweets'), orderByChild('author/email'), equalTo(userId));
     const tweets: Post[] = [];
 
     onValue(tweetsQuery, (tweetsSnapshot) => {

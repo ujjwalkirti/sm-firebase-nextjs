@@ -2,7 +2,7 @@
 import Navbar from "@/components/Navbar";
 import PostsList from "@/components/PostsList";
 import SplashScreenPage from "@/components/SplashScreenPage";
-import { ShieldX, ShieldXIcon, SquarePen } from "lucide-react";
+import { ShieldXIcon, SquarePen } from "lucide-react";
 import React from "react";
 import {
   Dialog,
@@ -18,7 +18,7 @@ import { getFollowedTweets } from "@/lib/tweets";
 
 const Home = () => {
   const [user, setUser] = React.useState<User | null>(null);
-  const [tweets, setTweets] = React.useState<Post[] | null>(null);
+  const [tweets, setTweets] = React.useState<Post[] | null>([]);
   const [error, setError] = React.useState<boolean>(false);
   React.useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -35,12 +35,13 @@ const Home = () => {
             : new Date().toDateString(),
         };
         setUser(localUser);
-        getFollowedTweets(user.uid)
+        getFollowedTweets(user.email || "")
           .then((tweets) => {
             setTweets(tweets);
           })
           .catch((error) => {
             setError(true);
+            setTweets([]);
           });
         // ...
       } else {

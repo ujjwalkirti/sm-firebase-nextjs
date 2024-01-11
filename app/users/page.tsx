@@ -12,7 +12,7 @@ const UsersListPage = () => {
     getAllUsers().then((data) => {
       const allUsers = data as User[];
       const otherUsers = allUsers.filter(
-        (user) => user.uid !== auth.currentUser?.uid
+        (user) => user.email !== auth.currentUser?.email
       );
       setUsers(otherUsers);
     });

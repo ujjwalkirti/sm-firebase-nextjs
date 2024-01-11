@@ -10,6 +10,7 @@ const SplashScreenPage = () => {
         src={"/assets/splash-screen-header.jpg"}
         height={250}
         width={250}
+        priority
         alt="social media app on phone image"
       />
       <h2 className="text-[50px] text-pink-600 font-[800] mb-3">TweetX</h2>
