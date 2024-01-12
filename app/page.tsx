@@ -49,7 +49,10 @@ const Home = () => {
             onSnapshot(
               tweetsQuery,
               (tweetsSnapshot) => {
-                const newTweets = tweetsSnapshot.docs.map((doc) => doc.data());
+                let newTweets: Post[] = [];
+                tweetsSnapshot.forEach(doc=>{
+                    newTweets.push(doc.data() as Post);
+                })
                 setTweets((prev) => [...prev, ...newTweets]);
                 console.log(tweets);
                 resolve();
