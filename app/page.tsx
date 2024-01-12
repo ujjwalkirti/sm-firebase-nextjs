@@ -13,14 +13,59 @@ import {
 } from "@/components/ui/dialog";
 import Tweetform from "@/components/Tweetform";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/Firebase";
-import { getFollowedTweets } from "@/lib/tweets";
+import { auth, db } from "@/lib/Firebase";
+import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 
+let tweets: Post[] = [];
 const Home = () => {
   const [user, setUser] = React.useState<User | null>(null);
-  const [tweets, setTweets] = React.useState<Post[] | null>([]);
   const [error, setError] = React.useState<boolean>(false);
+  const [tweets, setTweets] = React.useState<Post[]>([]);
   React.useEffect(() => {
+    function setupTweetListeners(userId: string) {
+      // Get the list of user IDs the current user is following from Firestore
+      const userDocRef = doc(db, "users", userId);
+      getDoc(userDocRef).then((userDocSnapshot) => {
+        const following = userDocSnapshot.data()?.following;
+
+        // Add the current user's email to the list of followed users
+        following.push(userDocSnapshot.data()?.email);
+
+        // Get the tweets of each followed user from Firestore
+        const promises = following.map((emailId: string) => {
+          return new Promise<void>((resolve, reject) => {
+            const tweetsQuery = query(
+              collection(db, "tweets"),
+              where("author.email", "==", emailId),
+              orderBy("timestamp", "desc")
+            );
+            onSnapshot(
+              tweetsQuery,
+              (tweetsSnapshot) => {
+                const newTweets = tweetsSnapshot.docs.map((doc) => doc.data());
+                setTweets((prev) => [...prev, ...newTweets]);
+                console.log(tweets);
+                resolve();
+              },
+              reject
+            );
+          });
+        });
+
+        // Wait for all onSnapshot calls to complete
+        Promise.all(promises).catch((error) => {
+          console.error("Error fetching tweets: ", error);
+        });
+      });
+    }
+
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
@@ -35,14 +80,7 @@ const Home = () => {
             : new Date().toDateString(),
         };
         setUser(localUser);
-        getFollowedTweets(user.email || "")
-          .then((tweets) => {
-            setTweets(tweets);
-          })
-          .catch((error) => {
-            setError(true);
-            setTweets([]);
-          });
+        setupTweetListeners(user.uid);
         // ...
       } else {
         // User is signed out

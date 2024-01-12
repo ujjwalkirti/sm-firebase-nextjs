@@ -9,8 +9,8 @@ import {
   SmileIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import { push, ref, serverTimestamp, set } from "firebase/database";
-import { auth, realtimeDB } from "@/lib/Firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/Firebase";
 
 type props = {
   user: User;
@@ -27,15 +27,14 @@ const Tweetform = ({ user }: props) => {
     e.preventDefault();
     setStatus("started");
 
-    const tweetsRef = ref(realtimeDB, "tweets");
-    const newTweetRef = push(tweetsRef);
+    const tweetsCollectionRef = collection(db, "tweets");
     try {
-      await set(newTweetRef, {
+      await addDoc(tweetsCollectionRef, {
         content,
         caption,
         location,
         author: user,
-        timestamp: serverTimestamp(),
+        timestamp: new Date().getTime(),
         // Add other tweet data here
       });
       setStatus("posted");

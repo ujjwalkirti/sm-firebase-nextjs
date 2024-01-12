@@ -18,7 +18,7 @@ const SplashScreenPage = () => {
         TweetX is a social app that lets you share your moments with friends
       </h4>
       <div className="flex flex-col items-center gap-20 w-full">
-        <Button asChild className="bg-pink-600 w-full">
+        <Button asChild className="bg-pink-600 w-full md:w-1/5">
           <Link href={"/login"}>Sign In</Link>
         </Button>
         <Link className="text-pink-600 hover:underline" href={"/signup"}>Create New Account</Link>

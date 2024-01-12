@@ -15,3 +15,7 @@ type Post = {
     location: string;
     timestamp: string;
 }
+
+type ExtendedPost = {
+    id: Post;
+};

@@ -1,10 +1,6 @@
 import { CameraIcon } from "lucide-react";
 import React from "react";
 import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ReactTimeAgo from "react-time-ago";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en.json";
 import {
   Dialog,
   DialogContent,
@@ -13,14 +9,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Tweetform from "./Tweetform";
+import PostCard from "./PostCard";
 
 type props = {
   list: Post[];
   user: User;
 };
 
-TimeAgo.addDefaultLocale(en);
-const PostsList = ({ list ,user}: props) => {
+const PostsList = ({ list, user }: props) => {
   return (
     <div className=" my-6 min-h-screen w-full lg:w-3/5 lg:mx-auto">
       {list.length === 0 && (
@@ -35,33 +31,16 @@ const PostsList = ({ list ,user}: props) => {
               <DialogHeader className="flex items-center">
                 <DialogTitle>Create New Post</DialogTitle>
               </DialogHeader>
-              <Tweetform user={user}/>
+              <Tweetform user={user} />
             </DialogContent>
           </Dialog>
         </div>
       )}
       <div className="px-4 flex flex-col gap-4">
-        {list.map((post,index) => (
-          <div
-            key={index}
-            className="border-b border-b-gray-200 px-4 py-5 flex  gap-3 text-sm shadow-lg rounded-md bg-white"
-          >
-            <Avatar className="w-[40px] h-[40px]">
-              <AvatarImage src={"/assets/avatar.png"} alt="User's avatar" />
-              <AvatarFallback>{post.author.username}</AvatarFallback>
-            </Avatar>
-            <div className="">
-              <p className="font-semibold">{post.author.username}</p>
-              <ReactTimeAgo
-                date={new Date(post.timestamp)}
-                locale="en-US"
-                timeStyle="twitter"
-                className="text-gray-500 text-xs"
-              />
-              <p className="text-gray-500 mt-4">{post.content}</p>
-            </div>
-          </div>
-        ))}
+        {list.length !== 0 &&
+          list.map((post, index) => {
+            return <PostCard post={post} key={index} />;
+          })}
       </div>
     </div>
   );

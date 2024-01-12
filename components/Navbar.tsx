@@ -105,7 +105,7 @@ const Navbar = ({ title, user }: props) => {
           </Link>
           <Button
             className={
-              "bg-pink-600 hover:bg-white border border-pink-600 hover:text-pink-600 h-[40px]"
+              "bg-pink-600 hover:bg-white border border-pink-600 hover:text-pink-600 h-[30px]"
             }
             onClick={() => {
               signOut(auth)

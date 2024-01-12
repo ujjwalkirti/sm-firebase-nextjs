@@ -41,9 +41,8 @@ const ProfilePage = () => {
         const docSnap = await getDoc(docRef);
         setUser(docSnap.data() as User);
         const followerList = await getFollowers(user.email || "");
-        const followingList = await getFollowing(user.email || "");
+        const followingList = await getFollowing(user.uid);
         const postList = await getUserTweets(user.email || "");
-        console.log(postList);
         setFollowing(followingList);
         setFollowers(followerList);
         setPosts(postList);
