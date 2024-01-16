@@ -14,66 +14,26 @@ import {
 import Tweetform from "@/components/Tweetform";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/Firebase";
-import { doc, getDoc } from "firebase/firestore";
 import {
   collection,
-  query,
-  where,
+  doc,
+  getDoc,
   onSnapshot,
   orderBy,
+  query,
+  where,
 } from "firebase/firestore";
 
-let tweets: Post[] = [];
 const Home = () => {
   const [user, setUser] = React.useState<User | null>(null);
   const [error, setError] = React.useState<boolean>(false);
-  const [tweets, setTweets] = React.useState<Post[]>([]);
+  const [tweets, setTweets] = React.useState<Post[] | null>([]);
   React.useEffect(() => {
-    function setupTweetListeners(userId: string) {
-      // Get the list of user IDs the current user is following from Firestore
-      const userDocRef = doc(db, "users", userId);
-      getDoc(userDocRef).then((userDocSnapshot) => {
-        const following = userDocSnapshot.data()?.following;
-
-        // Add the current user's email to the list of followed users
-        following.push(userDocSnapshot.data()?.email);
-
-        // Get the tweets of each followed user from Firestore
-        const promises = following.map((emailId: string) => {
-          return new Promise<void>((resolve, reject) => {
-            const tweetsQuery = query(
-              collection(db, "tweets"),
-              where("author.email", "==", emailId),
-              orderBy("timestamp", "desc")
-            );
-            onSnapshot(
-              tweetsQuery,
-              (tweetsSnapshot) => {
-                let newTweets: Post[] = [];
-                tweetsSnapshot.forEach(doc=>{
-                    newTweets.push(doc.data() as Post);
-                })
-                setTweets((prev) => [...prev, ...newTweets]);
-                console.log(tweets);
-                resolve();
-              },
-              reject
-            );
-          });
-        });
-
-        // Wait for all onSnapshot calls to complete
-        Promise.all(promises).catch((error) => {
-          console.error("Error fetching tweets: ", error);
-        });
-      });
-    }
-
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/auth.user
-        const localUser: User = {
+        let localUser = {
           username: user.displayName ? user.displayName : user.email || "",
           email: user.email || "",
           uid: user.uid,
@@ -83,11 +43,34 @@ const Home = () => {
             : new Date().toDateString(),
         };
         setUser(localUser);
-        setupTweetListeners(user.uid);
-        // ...
+        const userDocRef = doc(db, "users", user.uid);
+        getDoc(userDocRef).then((userDocSnapshot) => {
+          const following = userDocSnapshot.data()?.following;
+
+          // Add the current user's email to the list of followed users
+          following.push(userDocSnapshot.data()?.email);
+
+          // Get the tweets of each followed user from Firestore
+          following.map((emailId: string) => {
+            const tweetsQuery = query(
+              collection(db, "tweets"),
+              where("author.email", "==", emailId),
+              orderBy("timestamp", "desc")
+            );
+
+            onSnapshot(tweetsQuery, (tweetsSnapshot) => {
+              const tweets: Post[] = [];
+              tweetsSnapshot.forEach((doc) => {
+                tweets.push(doc.data() as Post);
+              });
+              setTweets(tweets);
+            });
+          });
+        });
       } else {
         // User is signed out
-        // ...
+        setUser(null);
+        setTweets(null);
       }
     });
   }, []);
