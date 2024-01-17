@@ -33,7 +33,7 @@ const Navbar = ({ title, user }: props) => {
   const optionsStyle = "flex  items-center gap-4 text-gray-600";
   return (
     <div className="bg-white shadow-lg">
-      <div className="flex items-center justify-between px-4 pt-8 text-gray-600 lg:hidden">
+      <div className="flex items-center justify-between px-4 py-3 text-gray-600 lg:hidden">
         <Sheet>
           <SheetTrigger>
             {" "}
