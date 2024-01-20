@@ -14,6 +14,8 @@ type Post = {
     caption: string;
     location: string;
     timestamp: string;
+    likes: number;
+    likers: string[]
 }
 
 type ExtendedPost = {

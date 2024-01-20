@@ -30,7 +30,7 @@ function styleBasedOnCurrentRoute(currentRoute: string, route: string) {
 const Navbar = ({ title, user }: props) => {
   const { push } = useRouter();
   const pathname = usePathname();
-  const optionsStyle = "flex  items-center gap-4 text-gray-600";
+  const optionsStyle = "flex  items-center gap-4 text-gray-600 cursor-pointer";
   return (
     <div className="bg-white shadow-lg">
       <div className="flex items-center justify-between px-4 py-3 text-gray-600 lg:hidden">
@@ -44,7 +44,10 @@ const Navbar = ({ title, user }: props) => {
               <SheetTitle>
                 <div className="flex items-center gap-5">
                   <Avatar className="w-[50px] h-[50px]">
-                    <AvatarImage src="/assets/avatar.png" alt="User's avatar" />
+                    <AvatarImage
+                      src={user.profile_pic_url}
+                      alt="User's avatar"
+                    />
                     <AvatarFallback>{user.email}</AvatarFallback>
                   </Avatar>
                   <div className="text-sm">
