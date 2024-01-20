@@ -1,7 +1,6 @@
 import React from "react";
 import { hourglass } from "ldrs";
 
-
 type props = {
   isLoading: boolean;
 };
@@ -9,6 +8,13 @@ type props = {
 hourglass.register();
 
 function Loader({ isLoading }: props) {
+  React.useEffect(() => {
+    async function getLoader() {
+      const { spiral } = await import("ldrs");
+      spiral.register();
+    }
+    getLoader();
+  }, []);
   return (
     <div aria-live="polite" aria-busy={isLoading} className="text-pink-600">
       <l-hourglass

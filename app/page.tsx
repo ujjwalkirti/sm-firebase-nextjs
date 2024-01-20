@@ -23,32 +23,26 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import Loader from "@/components/Loader";
 
 const Home = () => {
   const [user, setUser] = React.useState<User | null>(null);
   const [error, setError] = React.useState<boolean>(false);
-  const [tweets, setTweets] = React.useState<Post[] | null>([]);
+  const [tweets, setTweets] = React.useState<Post[]>([]);
+  const [loadingTweets, setLoadingTweets] = React.useState<boolean>(true);
+
   React.useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/auth.user
-        let localUser = {
-          username: user.displayName ? user.displayName : user.email || "",
-          email: user.email || "",
-          uid: user.uid,
-          profile_pic_url: user.photoURL || "/assets/avatar.png",
-          timestamp: user.metadata.creationTime
-            ? user.metadata.creationTime
-            : new Date().toDateString(),
-        };
-        setUser(localUser);
         const userDocRef = doc(db, "users", user.uid);
-        getDoc(userDocRef).then((userDocSnapshot) => {
-          const following = userDocSnapshot.data()?.following;
-
+        const currentUserSnap = await getDoc(userDocRef);
+        if (currentUserSnap.exists()) {
+          setUser(currentUserSnap.data() as User);
+          const following = currentUserSnap.data().following;
           // Add the current user's email to the list of followed users
-          following.push(userDocSnapshot.data()?.email);
+          following.push(user.email);
 
           // Get the tweets of each followed user from Firestore
           following.map((emailId: string) => {
@@ -63,14 +57,26 @@ const Home = () => {
               tweetsSnapshot.forEach((doc) => {
                 tweets.push(doc.data() as Post);
               });
-              setTweets(tweets);
+              setTweets((prev) => [...prev, ...tweets]);
+              setLoadingTweets(false);
             });
           });
-        });
+        } else {
+          let localUser = {
+            username: user.displayName ? user.displayName : user.email || "",
+            email: user.email || "",
+            uid: user.uid,
+            profile_pic_url: user.photoURL || "/assets/avatar.png",
+            timestamp: user.metadata.creationTime
+              ? user.metadata.creationTime
+              : new Date().toDateString(),
+          };
+          setUser(localUser);
+        }
       } else {
         // User is signed out
         setUser(null);
-        setTweets(null);
+        setTweets([]);
       }
     });
   }, []);
@@ -80,9 +86,17 @@ const Home = () => {
       {user ? (
         <div className="bg-gray-100">
           <Navbar user={user} title={"My Feed"} />
-          {tweets ? (
+          {loadingTweets && (
+            <div className="min-h-screen w-screen flex items-center justify-center">
+              <Loader isLoading={loadingTweets} />
+            </div>
+          )}
+
+          {!loadingTweets && tweets && tweets.length !== 0 && (
             <PostsList list={tweets} user={user as User} />
-          ) : (
+          )}
+
+          {tweets && tweets.length === 0 && !loadingTweets && (
             <div className="px-2 mt-10 min-h-screen">
               <ShieldXIcon className="mx-auto text-pink-600 h-14 w-14 mb-5" />
               <p className="text-center">
