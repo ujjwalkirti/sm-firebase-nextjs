@@ -1,17 +1,14 @@
 import React from "react";
-import { hourglass } from "ldrs";
 
 type props = {
   isLoading: boolean;
 };
 
-hourglass.register();
-
 function Loader({ isLoading }: props) {
   React.useEffect(() => {
     async function getLoader() {
-      const { spiral } = await import("ldrs");
-      spiral.register();
+      const { hourglass } = await import("ldrs");
+      hourglass.register();
     }
     getLoader();
   }, []);
