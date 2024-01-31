@@ -1,5 +1,5 @@
 "use client";
-import {  MoveLeftIcon } from "lucide-react";
+import { MoveLeftIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,10 +9,7 @@ import FollowingList from "@/components/FollowingList";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/Firebase";
 import { useRouter } from "next/navigation";
-import {
-  getFollowers,
-  getFollowing,
-} from "@/lib/user";
+import { getFollowers, getFollowing } from "@/lib/user";
 import { doc, getDoc } from "firebase/firestore";
 import { getUserTweets } from "@/lib/tweets";
 import { Button } from "@/components/ui/button";
@@ -25,7 +22,7 @@ function stylesBasedOnChoice(intent: string, choice: string) {
 }
 
 const ProfilePage = () => {
-  const [choice, setChoice] = React.useState("following");
+  const [choice, setChoice] = React.useState("posts");
   const [user, setUser] = React.useState<User | null>(null);
   const [followers, setFollowers] = React.useState<User[]>([]);
   const [following, setFollowing] = React.useState<User[]>([]);
@@ -38,20 +35,21 @@ const ProfilePage = () => {
       const docRef = doc(db, "users", uid);
       const docSnap = await getDoc(docRef);
       setUser(docSnap.data() as User);
-      const followerList = await getFollowers(email || "");
+      const followerList = await getFollowers(email);
       const followingList = await getFollowing(uid);
-      const postList = await getUserTweets(email || "");
+      const postList = await getUserTweets(email);
       setFollowing(followingList);
       setFollowers(followerList);
       setPosts(postList);
-      setLoading(false);
     }
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/auth.user
         // ...
-        collectiveDataFetch(user.uid, user.email || "");
+        collectiveDataFetch(user.uid, user.email || "").then((_) => {
+          setLoading(false);
+        });
       } else {
         // User is signed out
         // ...

@@ -31,55 +31,53 @@ const Home = () => {
   const [tweets, setTweets] = React.useState<Post[]>([]);
   const [loadingTweets, setLoadingTweets] = React.useState<boolean>(true);
 
-  React.useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        const userDocRef = doc(db, "users", user.uid);
-        const currentUserSnap = await getDoc(userDocRef);
-        if (currentUserSnap.exists()) {
-          setUser(currentUserSnap.data() as User);
-          const following = currentUserSnap.data().following;
-          // Add the current user's email to the list of followed users
-          following.push(user.email);
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      const userDocRef = doc(db, "users", user.uid);
+      const currentUserSnap = await getDoc(userDocRef);
+      if (currentUserSnap.exists()) {
+        setUser(currentUserSnap.data() as User);
+        const following = currentUserSnap.data().following;
+        // Add the current user's email to the list of followed users
+        following.push(user.email);
 
-          // Get the tweets of each followed user from Firestore
-          following.map((emailId: string) => {
-            const tweetsQuery = query(
-              collection(db, "tweets"),
-              where("author.email", "==", emailId),
-              orderBy("timestamp", "desc")
-            );
+        // Get the tweets of each followed user from Firestore
+        following.map((emailId: string) => {
+          const tweetsQuery = query(
+            collection(db, "tweets"),
+            where("author.email", "==", emailId),
+            orderBy("timestamp", "desc")
+          );
 
-            onSnapshot(tweetsQuery, (tweetsSnapshot) => {
-              const tweets: Post[] = [];
-              tweetsSnapshot.forEach((doc) => {
-                tweets.push(doc.data() as Post);
-              });
-              setTweets((prev) => [...prev, ...tweets]);
-              setLoadingTweets(false);
+          onSnapshot(tweetsQuery, (tweetsSnapshot) => {
+            const tweets: Post[] = [];
+            tweetsSnapshot.forEach((doc) => {
+              tweets.push(doc.data() as Post);
             });
+            setTweets((prev) => [ ...tweets]);
+            setLoadingTweets(false);
           });
-        } else {
-          let localUser = {
-            username: user.displayName ? user.displayName : user.email || "",
-            email: user.email || "",
-            uid: user.uid,
-            profile_pic_url: user.photoURL || "/assets/avatar.png",
-            timestamp: user.metadata.creationTime
-              ? user.metadata.creationTime
-              : new Date().toDateString(),
-          };
-          setUser(localUser);
-        }
+        });
       } else {
-        // User is signed out
-        setUser(null);
-        setTweets([]);
+        let localUser = {
+          username: user.displayName ? user.displayName : user.email || "",
+          email: user.email || "",
+          uid: user.uid,
+          profile_pic_url: user.photoURL || "/assets/avatar.png",
+          timestamp: user.metadata.creationTime
+            ? user.metadata.creationTime
+            : new Date().toDateString(),
+        };
+        setUser(localUser);
       }
-    });
-  }, []);
+    } else {
+      // User is signed out
+      setUser(null);
+      setTweets([]);
+    }
+  });
 
   return (
     <>

@@ -15,7 +15,7 @@ const FollowersList = ({ list }: props) => {
   React.useEffect(() => {
     setInterval(() => {
       setLoading(false);
-    }, 3 * 1000);
+    }, 1.5 * 1000);
   }, []);
   return (
     <div className="pt-8 px-4">
